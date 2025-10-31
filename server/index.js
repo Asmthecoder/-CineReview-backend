@@ -1,5 +1,5 @@
 import app from "./server.js";
-import { MongoClient } from "mongodb";
+import { MongoClient, ServerApiVersion } from "mongodb";
 import dotenv from "dotenv";
 import ReviewsDAO from "./reviews.DAO.js";
 
@@ -15,11 +15,22 @@ if (!MONGODB_URI) {
     process.exit(1);
 }
 
-MongoClient.connect(MONGODB_URI, {
-    maxPoolSize: 50,
-    wtimeoutMS: 2500
-})
-    .then(client => {
+// Create a MongoClient with Stable API version
+const client = new MongoClient(MONGODB_URI, {
+    serverApi: {
+        version: ServerApiVersion.v1,
+        strict: true,
+        deprecationErrors: true,
+    }
+});
+
+async function connectDB() {
+    try {
+        // Connect the client to the server
+        await client.connect();
+        
+        // Send a ping to confirm a successful connection
+        await client.db("admin").command({ ping: 1 });
         console.log("✅ Connected to MongoDB Atlas!");
         console.log(`📍 Database: ${DB_NAME}`);
         
@@ -34,9 +45,12 @@ MongoClient.connect(MONGODB_URI, {
             console.log(`🚀 Server listening on port ${port}`);
             console.log(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`);
         });
-    })
-    .catch(err => {
+    } catch (err) {
         console.error("❌ MongoDB connection failed:", err.message);
         console.error(err.stack);
         process.exit(1);
-    });
+    }
+}
+
+// Run the connection
+connectDB().catch(console.dir);
