@@ -17,9 +17,7 @@ if (!MONGODB_URI) {
 
 MongoClient.connect(MONGODB_URI, {
     maxPoolSize: 50,
-    wtimeoutMS: 2500,
-    useNewUrlParser: true,
-    useUnifiedTopology: true
+    wtimeoutMS: 2500
 })
     .then(client => {
         console.log("✅ Connected to MongoDB Atlas!");
